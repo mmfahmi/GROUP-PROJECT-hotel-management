@@ -57,8 +57,19 @@ input[type=date]
         border: 1px;
         border-radius: 10px;
     }
+
+table
+    {
+        border: 0px solid;
+        background-color: white;
+    }
     
+td
+    {
+        text-align: left;
+    }
+
 th
     {
-        text-align: right;
+        text-align: center;
     }

@@ -1,4 +1,28 @@
+<%@page import="java.sql.ResultSet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" import="java.sql.*" %>
+
+    <%
+
+    try {
+
+    // Establish a connection to MySql database
+        
+    String driver = "org.apache.derby.jdbc.ClientDriver";
+
+    String dbCon = "jdbc:derby://localhost:1527/Customer";
+
+    Class.forName(driver);
+
+    String usr = "app", pass="app";
+
+    Connection conn = DriverManager.getConnection(dbCon,usr, pass);
+
+    %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -7,6 +31,13 @@
         <title>Check Booking</title>
     </head>
     <body>
+        
+        <c:set var="id" value="${param.delete}"/>
+        
+        <c:if test="${id!=null}" var="result">
+            ${param.delete}
+        </c:if>
+        
         <h1>HOTEL MANAGEMENT SYSTEM</h1>
         <div class="topnav">
             <a href="JSPmenu.jsp">Dashboard</a>
@@ -16,23 +47,45 @@
         </div><br><br>
         
         <%
-        //loop in database 
+
+        Statement stmt = conn.createStatement();
+
+        ResultSet rs = stmt.executeQuery("SELECT * FROM BOOKING");
+        
         %>
-        
-        <table border="1" cellspacing="1" celldpadding="1">
+       
+        <table border="1" cellspacing="5" celldpadding="10" width="80%" >
             <tr>
-                <th>BOOKING ID</th>
-        	<th>ROOM ID</th>
-        	<th>CUSTOMER ID</th>
-		<th>BOOKING DATE</th>
-		<th>EMPLOYEE ID</th>
+                    <th>Booking ID</th>
+                    <th>Employee ID</th>
+                    <th>Room ID</th>
+                    <th>Customer ID</th>
+                    <th>Booking Date</th>
             </tr>
-            
-            <%
-                //print data here
+            <% 
+                while(rs.next()){
+                String bookingID = rs.getString("BOOKINGID");
             %>
-            
+                
+                <tr>
+                        <td><%=bookingID%></td>
+                        <td><%= rs.getString("EMPLOYEEID")%></td>
+                        <td><%= rs.getString("ROOMID")    %></td>
+                        <td><%= rs.getString("CUSTOMERID")%></td>
+                        <td><%= rs.getString("BOOKINGDATE")%></td>
+                        <td><%=bookingID%></td>
+                </tr><% } %>
         </table>
-        
+                <%
+                    rs.close();
+                    stmt.close();
+                    conn.close();
+                    }catch (SQLException sqle) {
+                    out.println(sqle.getMessage());
+                    } catch (Exception e) {
+                    out.println(e.getMessage());
+                    }
+                %>
+                    
     </body>
 </html>
