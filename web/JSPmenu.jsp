@@ -4,9 +4,14 @@
     Author     : FAHMI
 --%>
 
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="util.DBConnection"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
-<jsp:useBean id="Employee" scope="request" type="com.hotel.model.Employee" />
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,7 +29,28 @@
             <a href="checkBooking.jsp">Check booking</a>
             <a href="index.html">Log out</a>
         </div>
-        Employee ID&nbsp;&nbsp;&nbsp;&nbsp; : <c:out value="${Employee.employeeID}"></c:out><br>
-        Employee Name: <c:out value="${Employee.employeeName}"></c:out>
+        <%
+            String userName = null;
+            userName = (String)session.getAttribute("userName");
+            
+            Connection con = null;
+            Statement stmt = null;
+            ResultSet rs   = null;
+            
+            try{
+            con = DBConnection.createConnection();
+            stmt = con.createStatement();
+            String sql = "SELECT * FROM RECEPTIONIST WHERE USERNAME='"+userName+"'";
+            
+            rs = stmt.executeQuery(sql);
+            
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+            while(rs.next()){
+        %>
+        Employee ID&nbsp;&nbsp;&nbsp;&nbsp; : <c:out value="<%=rs.getString("EMPLOYEEID")%>"></c:out><br>
+        Employee Name: <c:out value="<%=rs.getString("EMPLOYEENAME")%>"></c:out>
+        <%}%>
     </body>
 </html>

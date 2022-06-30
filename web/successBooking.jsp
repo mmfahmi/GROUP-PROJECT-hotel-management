@@ -1,3 +1,4 @@
+<%@page import="com.hotel.bean.Booking"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
@@ -32,6 +33,8 @@
             <a href="checkBooking.jsp">Check booking</a>
             <a href="index.html">Log out</a>
         </div><br>
+        
+        <%=request.getParameter("et")%>
         
         <div class="complete">
             <h1>Booking completed</h1>

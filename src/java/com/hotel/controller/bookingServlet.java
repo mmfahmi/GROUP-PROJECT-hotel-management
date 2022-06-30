@@ -4,13 +4,16 @@
  */
 package com.hotel.controller;
 
+import com.hotel.bean.Booking;
+import com.hotel.bean.Customer;
+import com.hotel.dao.bookingDAO;
+import com.hotel.dao.customerDAO;
+import com.hotel.dao.sessionDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -18,13 +21,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import util.DBConnection;
+import javax.servlet.http.*;  
 /**
  *
  * @author FAHMI
  */
 public class bookingServlet extends HttpServlet {
 
+        public Connection con = DBConnection.createConnection();
+    
         private PreparedStatement pstmt;
 
     /**
@@ -79,56 +85,43 @@ public class bookingServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String bookingID = generateBookingID();
-            String employeeID = "placeholder";
-            String roomID = "placeholder";
-            String customerID = "palceholder";
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            String name = request.getParameter("custName");
-            String phone = request.getParameter("custPhone");
-            String date = request.getParameter("bookingDate");
-            String room = request.getParameter("roomType");
-            if(null==name||phone==null||date==null||room==null){
-                RequestDispatcher view = request.getRequestDispatcher("/booking.html");
-                view.forward(request, response);
-            }
-            else{
-                pstmt = conn.prepareStatement(
-                        "INSERT INTO BOOKING "
-                        + "(BOOKINGID, EMPLOYEEID, ROOMID, CUSTOMERID, BOOKINGDATE)"
-                        + "VALUES (?,?,?,?,?)");
-                pstmt.setString(1, bookingID);
-                pstmt.setString(2, employeeID);
-                pstmt.setString(3, roomID);
-                pstmt.setString(4, customerID);
-                pstmt.executeUpdate();
-                pstmt.close();
-                RequestDispatcher view = request.getRequestDispatcher("/successBooking.jsp");
-                view.forward(request, response);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private String generateBookingID(){
+        List errorMsgs = new LinkedList();
         try{
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            pstmt = conn.prepareStatement("SELECT MAX(BOOKINGID) FROM RECEPTIONIST");
-            ResultSet rs = pstmt.executeQuery();
-            int id = Integer.parseInt(rs.getString(1));
-            id = id+1;
-            String bID = String.valueOf(id);
-            return bID;
-        } catch (SQLException ex){
-            Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
+            Booking bk = new Booking();
+            String customerName = request.getParameter("custName");
+            String customerPhone = request.getParameter("custPhone");
+            String roomType = request.getParameter("roomType");
+            String date = request.getParameter("bookingDate");
+            
+            
+            
+            int roomID = roomIDCheck(roomType);
+            
+            Customer cst = new Customer();
+            cst.setCustomerName(customerName);
+            cst.setCustomerPhone(customerPhone);
+            customerDAO dao = new customerDAO();
+            int customerID=dao.addCustomer(cst);
+            
+            HttpSession session=request.getSession(false); 
+            int test = (int)session.getAttribute("ID");
+            bk.setCustomerID(customerID);
+            bk.setEmployeeID(test);
+            bk.setRoomID(roomID);
+            bk.setDate(date);
+            
+            bookingDAO dao2 = new bookingDAO();
+            dao2.addBooking(bk);
+            if(customerID==1000){
+                request.setAttribute("et", roomID);
+            RequestDispatcher view = request.getRequestDispatcher("successBooking.jsp");
+            view.forward(request,response);
+            }
+            
+            
+        }catch(Exception ex){
+            System.out.println(ex);
         }
-        return null;
     }
 
     /**
@@ -140,5 +133,23 @@ public class bookingServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    private int roomIDCheck(String roomType) {
+        
+        try{
+            String sql = "SELECT ROOM.ROOMID FROM ROOM,BOOKING WHERE ROOM.ROOMID = BOOKING.ROOMID "+
+                     " AND ROOM.ROOMTYPE='"+roomType+"'";
+            
+            Statement ps = con.createStatement();
+            ResultSet rs = ps.executeQuery(sql);
+            
+            rs.next();
+            int i = rs.getInt("ROOMID");
+            return(i);
+            
+        }catch (Exception ex){
+            System.out.println(ex);
+        }return 0;
+    }
 
 }

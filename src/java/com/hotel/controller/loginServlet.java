@@ -1,6 +1,9 @@
 package com.hotel.controller;
 
+import com.hotel.bean.LoginBean;
 import com.hotel.model.Employee;
+import com.hotel.dao.LoginDAO;
+import com.hotel.dao.sessionDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
@@ -11,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -46,45 +50,32 @@ public class loginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            ResultSet rs;
-            pstmt = conn.prepareStatement( 
-            "SELECT USERNAME, PASSWORD FROM RECEPTIONIST WHERE USERNAME=? and PASSWORD=?");
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            rs = pstmt.executeQuery();
-            pstmt.clearBatch();
-            if (rs.next()){
-                pstmt = conn.prepareStatement(
-                "SELECT EMPLOYEEID, EMPLOYEENAME FROM RECEPTIONIST WHERE USERNAME=? AND PASSWORD=?");
-                pstmt.setString(1, username);
-                pstmt.setString(2, password);
-                rs = pstmt.executeQuery();
-                while(rs.next()){
-                String employeeId = rs.getString("EMPLOYEEID");
-                String employeeName = rs.getString("EMPLOYEENAME");
-                Employee employ = new Employee(employeeId, employeeName, username, password);
-                request.setAttribute("Employee", employ);
-                }
-                pstmt.close();
-                RequestDispatcher view = request.getRequestDispatcher("/JSPmenu.jsp");
-                view.forward(request, response);
-            }
-         
-            else{
-                System.out.println("Incorrect login credentials");
-                RequestDispatcher view = request.getRequestDispatcher("/index.html");
-                view.forward(request, response);
-            }
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(loginServlet.class.getName()).log(Level.SEVERE, null, ex);
+        String userName=request.getParameter("username");
+        String password=request.getParameter("password");
+        
+        LoginBean loginBean = new LoginBean();
+        
+        loginBean.setUserName(userName);
+        loginBean.setUserPassword(password);
+        
+        LoginDAO loginDao = new LoginDAO();
+        String userValidate = loginDao.authenticateUser(loginBean);
+        
+        int ID = sessionDAO.getInfo(userName);
+        
+        if(userValidate.equals("SUCCESS")){
+            HttpSession session=request.getSession();
+            session.setAttribute("userName", userName);
+            session.setAttribute("ID", ID);
+            request.setAttribute("username", userName);
+            request.getRequestDispatcher("JSPmenu.jsp").forward(request, response);
         }
+        else
+        {
+            request.setAttribute("errMessage", userValidate);
+            request.getRequestDispatcher("index.html").forward(request, response);
+        }
+        
     }
     @Override
     public String getServletInfo() {

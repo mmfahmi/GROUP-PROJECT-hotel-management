@@ -46,11 +46,24 @@
 	</style>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            function validate(){
+                var username = document.form.username.value;
+                var password = document.form.password.value;
+                if(username==null||username==""){
+                    alert("Username cannot be blank");
+                    return false;
+                }else if(password==null||password==""){
+                    alert("Password cannot be blank");
+                    return false;
+                }
+            }
+        </script>
     </head>
     <body>
         <div>
         <h1 style="font-size:300%;" >Hotel Management System</h1>
-        <form action="login.do" method="POST">
+        <form action="login.do" method="POST" onsubmit="return validate()">
             
             <b>Username  <br><br><input type="text" name="username"><br><br><br>
                 Password <br><br><input type="password" name="password"><br><br><br>

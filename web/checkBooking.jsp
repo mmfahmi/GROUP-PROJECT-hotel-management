@@ -54,7 +54,7 @@
         
         %>
        
-        <table border="1" cellspacing="5" celldpadding="10" width="80%" >
+        <table border="1" cellspacing="5" width="80%" >
             <tr>
                     <th>Booking ID</th>
                     <th>Employee ID</th>
@@ -73,7 +73,10 @@
                         <td><%= rs.getString("ROOMID")    %></td>
                         <td><%= rs.getString("CUSTOMERID")%></td>
                         <td><%= rs.getString("BOOKINGDATE")%></td>
-                        <td><%=bookingID%></td>
+                        <td><a href="editBooking.jsp?bkid=<%=bookingID%>" 
+                               title="Update Record" style="text-decoration: none;color: green;">edit</a>
+                            <a href="deleteServlet?bkid=<%=bookingID%>"
+                               title="Delete Record" style="text-decoration: none;color: green;">Delete</a></td>
                 </tr><% } %>
         </table>
                 <%
