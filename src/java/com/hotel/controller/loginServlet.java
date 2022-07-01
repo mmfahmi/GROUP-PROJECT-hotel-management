@@ -1,6 +1,8 @@
 package com.hotel.controller;
 
 import com.hotel.model.Employee;
+import com.hotel.dao.LoginDao; //Imported by Amir
+import com.hotel.dao.EmployeeDao; //Imported by Amir
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
@@ -11,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -49,6 +52,32 @@ public class loginServlet extends HttpServlet {
         try {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
+        //Editor 1 {
+                //Authenticate and validate user
+            LoginDao lgdao = new LoginDao();
+            String validation = lgdao.validateUser(username, password);
+                //If the user is valid, will directed to JSPmenu.jsp
+            if(validation.equals("SUCCESS")){
+                //Register and set an attribute for session
+                HttpSession session=request.getSession();
+                //Setting bean object for the current user
+                EmployeeDao empdao = new EmployeeDao();
+                Employee emp = null;
+                emp = empdao.getEmployee(username, password);
+                
+                //Setting up session
+                session.setAttribute("Employee",emp);
+                
+                //Go to menu page
+                RequestDispatcher view = request.getRequestDispatcher("/JSPmenu.jsp");
+                view.forward( request, response);
+                
+            } else { //redirected to index.html --> index.jsp is proper
+                request.setAttribute("errMessage", validation);//returns Invalid user credentials (fail login)
+                RequestDispatcher view = request.getRequestDispatcher("index.jsp");
+                view.forward(request, response);//forwarding the request
+            } //End of code (Amir)
+        /* Commented by Amir   
             String driver = "org.apache.jdbc.ClientDriver";
             String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
             Connection conn = DriverManager.getConnection(connectionString);
@@ -80,9 +109,9 @@ public class loginServlet extends HttpServlet {
                 System.out.println("Incorrect login credentials");
                 RequestDispatcher view = request.getRequestDispatcher("/index.html");
                 view.forward(request, response);
-            }
-            
-        } catch (SQLException ex) {
+            }*/ //End of commented code by Amir
+        
+        } catch (Exception ex) {
             Logger.getLogger(loginServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

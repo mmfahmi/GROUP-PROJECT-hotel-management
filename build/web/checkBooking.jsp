@@ -1,6 +1,10 @@
 <%@page import="java.sql.ResultSet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
+<% //Session checking (by Amir)
+    if(session.getAttribute("Employee") == null) {
+        request.setAttribute("errMessage", "You have not login");
+        request.getRequestDispatcher("/index.jsp").forward( request, response);
+    }%>
 <%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" import="java.sql.*" %>
@@ -43,7 +47,7 @@
             <a href="JSPmenu.jsp">Dashboard</a>
             <a href="booking.html">New booking</a>
             <a class="active" href="#">Check booking</a>
-            <a href="index.html">Log out</a>
+            <a href="logout.do">Log out</a>
         </div><br><br>
         
         <%

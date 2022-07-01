@@ -3,10 +3,14 @@
     Created on : 23 Jun 2022, 8:45:03 AM
     Author     : FAHMI
 --%>
-
+<% //Session checking (by Amir)
+    if(session.getAttribute("Employee") == null) {
+        request.setAttribute("errMessage", "You have not login");
+        request.getRequestDispatcher("/index.jsp").forward( request, response);
+    }%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
-<jsp:useBean id="Employee" scope="request" type="com.hotel.model.Employee" />
+<jsp:useBean id="Employee" scope="session" type="com.hotel.model.Employee" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -22,7 +26,7 @@
             <a class="active" href="#home">Dashboard</a>
             <a href="booking.html">New booking</a>
             <a href="checkBooking.jsp">Check booking</a>
-            <a href="index.html">Log out</a>
+            <a href="logout.do">Log out</a>
         </div>
         Employee ID&nbsp;&nbsp;&nbsp;&nbsp; : <c:out value="${Employee.employeeID}"></c:out><br>
         Employee Name: <c:out value="${Employee.employeeName}"></c:out>

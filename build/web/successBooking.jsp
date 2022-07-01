@@ -1,3 +1,8 @@
+<% //Session checking (by Amir)
+    if(session.getAttribute("Employee") == null) {
+        request.setAttribute("errMessage", "You have not login");
+        request.getRequestDispatcher("/index.jsp").forward( request, response);
+    }%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
@@ -30,7 +35,7 @@
             <a href="JSPmenu.jsp">Dashboard</a>
             <a class="active" href="booking.html">New booking</a>
             <a href="checkBooking.jsp">Check booking</a>
-            <a href="index.html">Log out</a>
+            <a href="logout.do">Log out</a>
         </div><br>
         
         <div class="complete">
