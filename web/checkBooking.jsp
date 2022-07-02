@@ -6,21 +6,14 @@
 <%@ page language="java" import="java.sql.*" %>
 
     <%
-
     try {
-
     // Establish a connection to MySql database
         
     String driver = "org.apache.derby.jdbc.ClientDriver";
-
     String dbCon = "jdbc:derby://localhost:1527/Customer";
-
     Class.forName(driver);
-
     String usr = "app", pass="app";
-
     Connection conn = DriverManager.getConnection(dbCon,usr, pass);
-
     %>
 
 <!DOCTYPE html>
@@ -31,13 +24,13 @@
         <title>Check Booking</title>
     </head>
     <body>
-        
+
         <c:set var="id" value="${param.delete}"/>
-        
+
         <c:if test="${id!=null}" var="result">
             ${param.delete}
         </c:if>
-        
+
         <h1>HOTEL MANAGEMENT SYSTEM</h1>
         <div class="topnav">
             <a href="JSPmenu.jsp">Dashboard</a>
@@ -45,15 +38,13 @@
             <a class="active" href="#">Check booking</a>
             <a href="index.html">Log out</a>
         </div><br><br>
-        
+
         <%
-
         Statement stmt = conn.createStatement();
-
         ResultSet rs = stmt.executeQuery("SELECT * FROM BOOKING");
         
         %>
-       
+
         <table border="1" cellspacing="5" celldpadding="10" width="80%" >
             <tr>
                     <th>Booking ID</th>
@@ -66,7 +57,7 @@
                 while(rs.next()){
                 String bookingID = rs.getString("BOOKINGID");
             %>
-                
+
                 <tr>
                         <td><%=bookingID%></td>
                         <td><%= rs.getString("EMPLOYEEID")%></td>
@@ -86,6 +77,6 @@
                     out.println(e.getMessage());
                     }
                 %>
-                    
+
     </body>
 </html>
