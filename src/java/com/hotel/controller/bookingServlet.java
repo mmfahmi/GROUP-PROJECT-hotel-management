@@ -80,7 +80,6 @@ public class bookingServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String bookingID = generateBookingID();
             String employeeID = "placeholder";
             String roomID = "placeholder";
             String customerID = "palceholder";
@@ -98,12 +97,12 @@ public class bookingServlet extends HttpServlet {
             else{
                 pstmt = conn.prepareStatement(
                         "INSERT INTO BOOKING "
-                        + "(BOOKINGID, EMPLOYEEID, ROOMID, CUSTOMERID, BOOKINGDATE)"
-                        + "VALUES (?,?,?,?,?)");
-                pstmt.setString(1, bookingID);
-                pstmt.setString(2, employeeID);
-                pstmt.setString(3, roomID);
-                pstmt.setString(4, customerID);
+                        + "(EMPLOYEEID, ROOMID, CUSTOMERID, BOOKINGDATE)"
+                        + "VALUES (?,?,?,?)");
+                pstmt.setString(1, employeeID);
+                pstmt.setString(2, roomID);
+                pstmt.setString(3, customerID);
+                pstmt.setString(4, date);
                 pstmt.executeUpdate();
                 pstmt.close();
                 RequestDispatcher view = request.getRequestDispatcher("/successBooking.jsp");
@@ -111,25 +110,11 @@ public class bookingServlet extends HttpServlet {
             }
         } catch (SQLException ex) {
             Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         }
     }
     
-    private String generateBookingID(){
-        try{
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            pstmt = conn.prepareStatement("SELECT MAX(BOOKINGID) FROM RECEPTIONIST");
-            ResultSet rs = pstmt.executeQuery();
-            int id = Integer.parseInt(rs.getString(1));
-            id = id+1;
-            String bID = String.valueOf(id);
-            return bID;
-        } catch (SQLException ex){
-            Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
+
 
     /**
      * Returns a short description of the servlet.
