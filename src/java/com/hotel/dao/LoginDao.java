@@ -32,6 +32,7 @@ public class LoginDao {
             if (resultSet.next()) { //record found (enter username & password
                 return "SUCCESS"; //match with value in db 
             }
+            con.close();
         }catch (SQLException e){
             e.printStackTrace();
         }

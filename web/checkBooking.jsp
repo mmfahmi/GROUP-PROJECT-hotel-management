@@ -1,4 +1,5 @@
-<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.*"%>
+<%@page import="com.hotel.util.HoteldbConn"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% //Session checking (by Amir)
     if(session.getAttribute("Employee") == null) {
@@ -10,21 +11,9 @@
 <%@ page language="java" import="java.sql.*" %>
 
     <%
-
     try {
-
     // Establish a connection to MySql database
-        
-    String driver = "org.apache.derby.jdbc.ClientDriver";
-
-    String dbCon = "jdbc:derby://localhost:1527/Customer";
-
-    Class.forName(driver);
-
-    String usr = "app", pass="app";
-
-    Connection conn = DriverManager.getConnection(dbCon,usr, pass);
-
+    Connection conn = HoteldbConn.connectToDB(); //Edited by Amir
     %>
 
 <!DOCTYPE html>

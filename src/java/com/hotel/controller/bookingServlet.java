@@ -3,19 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package com.hotel.controller;
-
+//imports
+import com.hotel.dao.BookingDao;
+import com.hotel.dao.CustomerDao;
+import com.hotel.model.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
+import java.util.*;
+import java.util.logging.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,47 +38,75 @@ public class bookingServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet bookingServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet bookingServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        ///By Amir
+        List errorMsgs = new LinkedList();
+        //Parameters received which in used:
+        String custname = request.getParameter("custName");
+        String phoneNo = request.getParameter("custPhone");
+        String bkdate = request.getParameter("bookingDate");
+        //Get the information of the user employee
+        HttpSession session = request.getSession();
+        //If there is no session / session time out is reached
+        if(session.getAttribute("Employee") == null){
+            request.setAttribute("errMessage", "Login to continue ...");
+            request.getRequestDispatcher("/index.jsp").forward( request, response);
+        }
+        Employee emp = (Employee)session.getAttribute("Employee");
+        
+        //Checking null entry
+        if(custname == null || custname.trim().length() == 0){
+            errorMsgs.add("Please enter customer's name");
+        }
+        if(phoneNo == null || phoneNo.trim().length() == 0){
+            errorMsgs.add("Please enter customer's phone number");
+        }
+        if(bkdate == null || bkdate.trim().length() == 0){
+            errorMsgs.add("Please enter booking date ");
+        }
+        if ( ! errorMsgs.isEmpty()) {
+            request.setAttribute("errorMsgs", errorMsgs);
+            RequestDispatcher view = request.getRequestDispatcher("/JSPmenu.jsp");
+            view.forward(request, response);
+            return;
+        }
+        //insert customer data to database
+        CustomerDao custdao = new CustomerDao();
+        Customer cust = custdao.addCustomer(
+                (new Customer("0",custname,phoneNo)));
+        
+        //Get roomType
+        String roomType = request.getParameter("roomType");
+        
+        //E
+        //String bookid = request.getParameter("");
+        //String roomid = request.getParameter("");
+        
+        //Add booking to database
+        booking bk = new booking("B001",
+                emp.getEmployeeID(),"TST101",cust.getCustomerID(),bkdate);
+        BookingDao bkdao = new BookingDao();
+        bkdao.addBooking(bk);
+        
+        //Redirect to successBooking.jsp
+        request.setAttribute("custName",custname);
+        request.setAttribute("custPhone", phoneNo);
+        request.setAttribute("bookingDate",bkdate);
+        request.setAttribute("roomType",roomType);
+        RequestDispatcher view = request.getRequestDispatcher("/successBooking.jsp");
+        view.forward(request, response);
+        
+        /*//
         try {
             String bookingID = generateBookingID();
             String employeeID = "placeholder";
@@ -111,9 +139,10 @@ public class bookingServlet extends HttpServlet {
             }
         } catch (SQLException ex) {
             Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+        }*///
+    }//end of doPost()
     
+    /*/
     private String generateBookingID(){
         try{
             String driver = "org.apache.jdbc.ClientDriver";
@@ -129,13 +158,8 @@ public class bookingServlet extends HttpServlet {
             Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
+    }//*/
+    
     @Override
     public String getServletInfo() {
         return "Short description";

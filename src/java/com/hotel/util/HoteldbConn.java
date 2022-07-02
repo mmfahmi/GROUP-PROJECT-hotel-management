@@ -7,8 +7,8 @@ public class HoteldbConn {
         //Setting up Connection object
         Connection conn = null;
         String driver = "org.apache.derby.jdbc.ClientDriver";
-        String url = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-        
+        String url = "jdbc:derby://localhost:1527/Customer";
+        String dbUser = "app"; String dbPassword="app";
          try {
             try{ //Loading the driver
                 Class.forName(driver);
@@ -17,7 +17,7 @@ public class HoteldbConn {
                 e.printStackTrace();
             }
             //Have the connection object connect to the database
-            conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(url,dbUser,dbPassword );
             System.out.println("Printing connection object "+conn);
         } catch(Exception e){
             e.printStackTrace();
