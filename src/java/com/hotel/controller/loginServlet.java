@@ -54,23 +54,15 @@ public class loginServlet extends HttpServlet {
             Connection conn = DriverManager.getConnection(connectionString);
             ResultSet rs;
             pstmt = conn.prepareStatement( 
-            "SELECT USERNAME, PASSWORD FROM RECEPTIONIST WHERE USERNAME=? and PASSWORD=?");
+            "SELECT * FROM RECEPTIONIST WHERE USERNAME=? and PASSWORD=?");
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             rs = pstmt.executeQuery();
-            pstmt.clearBatch();
             if (rs.next()){
-                pstmt = conn.prepareStatement(
-                "SELECT EMPLOYEEID, EMPLOYEENAME FROM RECEPTIONIST WHERE USERNAME=? AND PASSWORD=?");
-                pstmt.setString(1, username);
-                pstmt.setString(2, password);
-                rs = pstmt.executeQuery();
-                while(rs.next()){
                 String employeeId = rs.getString("EMPLOYEEID");
                 String employeeName = rs.getString("EMPLOYEENAME");
                 Employee employ = new Employee(employeeId, employeeName, username, password);
                 request.setAttribute("Employee", employ);
-                }
                 pstmt.close();
                 RequestDispatcher view = request.getRequestDispatcher("/JSPmenu.jsp");
                 view.forward(request, response);
