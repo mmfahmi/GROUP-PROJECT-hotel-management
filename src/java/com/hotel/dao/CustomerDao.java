@@ -96,6 +96,7 @@ public class CustomerDao {
                     id = 100 + rs.getInt(1);
             }
             int custID = id + 1;
+            custID = getDistinctID(custID);
             closeDB(); //close connection
             return custID;//Return the generated ID
             
@@ -164,5 +165,28 @@ public class CustomerDao {
     //6) Clear list of customer data
     public void clearCustomerList(){
         custList.clear();
+    }
+    
+    //7) To counter customer id generation duplicates
+    public int getDistinctID(int id){
+        clearCustomerList(); //Clear the data list
+        getCustomerList(); //Get new data list
+        
+        boolean wloop = true; //to loop
+        
+        while(wloop) {
+            boolean id_found = false;
+            for(Object obj: custList){
+                Customer c = (Customer) obj;
+                int c_id = Integer.parseInt(c.getCustomerID());
+                if(c_id == id){
+                    id = id + 1;
+                    id_found = true;
+                    break; //exit for loop
+                }
+            }
+            if(!id_found){break;} //exit while loop
+        }
+        return id;
     }
 }

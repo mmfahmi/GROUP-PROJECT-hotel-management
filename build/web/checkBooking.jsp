@@ -17,8 +17,9 @@
         BookingDao bkdao = new BookingDao(); //Edited by Amir
         List bklist = bkdao.getBookList();
         
-        //Get customer list
-        CustomerDao custdao = new CustomerDao();
+        CustomerDao custdao = new CustomerDao(); //Get customer dao
+        EmployeeDao empdao = new EmployeeDao(); //Get employee dao
+        roomDao rdao = new roomDao(); //Get room list
     %>
 
 <!DOCTYPE html>
@@ -30,7 +31,7 @@
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
+  width: 180px;
   background-color: #99ffcc;
   color: #006666;
   text-align: center;
@@ -73,12 +74,24 @@
                 for(Object obj: bklist) { 
                     booking bk = (booking) obj;
                     Customer c = custdao.getCustomer(bk.getCustomerID());
+                    Employee emp = empdao.getEmployeeByID(bk.getEmployeeID());
+                    room r = rdao.getRoomByID(bk.getRoomID());
             %>
                 
                 <tr>
                         <td><%= bk.getBookingID() %></td>
-                        <td><%= bk.getEmployeeID() %></td>
-                        <td><%= bk.getRoomID()  %></td>
+                        <td class="tooltip" ><%= bk.getEmployeeID() %>
+                            <span class="tooltiptext">
+                                <%= emp.getEmployeeName() %> <br>
+                            </span>
+                        </td>
+                        <td class="tooltip"><%= bk.getRoomID()  %>
+                            <span class="tooltiptext">
+                                Room Type: <%= r.getRoomType() %> <br>
+                                Room Number: <%= r.getRoomNum() %>
+                            </span>
+                        </td>
+                        
                         <td class="tooltip"><%= bk.getCustomerID() %>
                             <span class="tooltiptext">
                                 <%= c.getCustomerName() %> <br>
