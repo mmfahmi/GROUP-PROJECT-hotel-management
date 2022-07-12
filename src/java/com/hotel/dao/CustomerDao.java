@@ -1,10 +1,12 @@
 package com.hotel.dao;
 import java.sql.*;
+import java.util.*;
 import com.hotel.model.Customer;
 import com.hotel.util.HoteldbConn;
-import java.util.logging.*;
 public class CustomerDao {
-    private Connection con;
+    //Member(s)
+    private Connection con; //connection object
+    private LinkedList custList = null;
     
     //methods
     //Connect to database
@@ -14,6 +16,15 @@ public class CustomerDao {
     
     //1) Add customer info
     public Customer addCustomer(Customer c){
+        //Check if the customer is already exist in the database
+        //by checking the name and phone number
+        Customer get_c = getCustomer(c.getCustomerName(),
+                c.getCustomerPhoneNum());
+        if(get_c != null)
+        {
+            return get_c; 
+        }
+        
         //Generate customer id first
         int custID = generateCustomerID();
         
@@ -42,11 +53,65 @@ public class CustomerDao {
         }
         return c;
     }
-    //2)
+    //2) Get customer data by customer id
     public Customer getCustomer(String custID){
+        Customer c = null;
         openDB(); //Open connection
-        String sql = "select * from customer where customer="+
+        String sql = "select * from customer where customerid="+
                 custID;
+        Statement stmt;
+        ResultSet rs;
+        try {
+            //Execute query
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            if(rs.next()){//calls first row
+                c = new Customer(
+                        Integer.toString(rs.getInt("customerid")),
+                        rs.getString("customername"),
+                        rs.getString("customerPhoneNum")
+                    );
+                closeDB(); //Close Connection
+            } else {return null;}
+            
+        } catch(Exception e){
+            System.out.println(e);
+        }
+        return c;
+    }
+    //3) Get the maximum id of customer
+    public int generateCustomerID(){
+        openDB(); //open connection
+        String sql = "select count(customerid) from customer";
+        Statement stmt;
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            int id = 100;
+            if(rs.next()){ //Calls the first row
+                //Calls the result column
+                if(rs.getString(1) == null) 
+                    id = 100;
+                else
+                    id = 100 + rs.getInt(1);
+            }
+            int custID = id + 1;
+            closeDB(); //close connection
+            return custID;//Return the generated ID
+            
+        } catch(Exception e){
+            //Logger.getLogger(CustomerDao.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println((e));
+        }
+        return 0; //Return something
+    }
+    
+    //4) Overload method of getCustomer(): parameters: name, phoneNum
+    public Customer getCustomer(String n, String p){
+        openDB(); //open DB connection
+        String sql = "select * from customer where "+
+                "customername = '"+n+"' AND "+
+                "customerphonenum = '"+p+"'";
         Statement stmt;
         ResultSet rs;
         try {
@@ -59,7 +124,8 @@ public class CustomerDao {
                         rs.getString("customername"),
                         rs.getString("customerPhoneNum")
                     );
-                return c;
+                closeDB(); //Close connection
+                return c; //Return customer object
             } else {return null;}
             
         } catch(Exception e){
@@ -67,29 +133,36 @@ public class CustomerDao {
         }
         return null;
     }
-    //3) Get the maximum id of customer
-    public int generateCustomerID(){
-        openDB(); //open connection
-        String sql = "select max(customerid) from customer";
+    
+    //5) Get list of all customers
+    public LinkedList getCustomerList(){
+        openDB(); // open connection
+        
+        String sql = "select * from customer";
         Statement stmt;
-        try{
+        
+        try {
+            
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            int id = 100;
-            if(rs.next()){
-                if(rs.getString(1) == null)
-                    id = 100;
-                else
-                    id = rs.getInt(1);
+            while(rs.next()){
+                String id = rs.getString("customerid");
+                String name = rs.getString("customername");
+                String phone = rs.getString("customerphonenum");
+                
+                Customer cust = new Customer(id,name,phone);
+                custList.add(cust);
             }
-            int custID = id + 1;
-            closeDB(); //close connection
-            return custID;
+            closeDB(); //Close the connection
+            return custList;
             
-        } catch(Exception e){
-            //Logger.getLogger(CustomerDao.class.getName()).log(Level.SEVERE, null, e);
-            System.out.println((e));
-        }
-        return 0;
+        } catch (Exception e) { System.out.println(e);}
+        
+        return custList;
+    }
+    
+    //6) Clear list of customer data
+    public void clearCustomerList(){
+        custList.clear();
     }
 }

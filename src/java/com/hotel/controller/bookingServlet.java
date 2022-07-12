@@ -4,8 +4,7 @@
  */
 package com.hotel.controller;
 //imports
-import com.hotel.dao.BookingDao;
-import com.hotel.dao.CustomerDao;
+import com.hotel.dao.*;
 import com.hotel.model.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,16 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 public class bookingServlet extends HttpServlet {
 
         private PreparedStatement pstmt;
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+        
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     }
@@ -50,19 +40,32 @@ public class bookingServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ///By Amir
-        List errorMsgs = new LinkedList();
+        
+        List errorMsgs = new LinkedList(); //Get Error Message
+        
         //Parameters received which in used:
         String custname = request.getParameter("custName");
         String phoneNo = request.getParameter("custPhone");
         String bkdate = request.getParameter("bookingDate");
+        String roomType = request.getParameter("roomType");
+        String roomID = request.getParameter("roomID");
+        
         //Get the information of the user employee
         HttpSession session = request.getSession();
         //If there is no session / session time out is reached
         if(session.getAttribute("Employee") == null){
             request.setAttribute("errMessage", "Login to continue ...");
             request.getRequestDispatcher("/index.jsp").forward( request, response);
+            return;
         }
         Employee emp = (Employee)session.getAttribute("Employee");
+        
+        //Check availability of the room
+        roomDao rdao = new roomDao();
+        room cr = rdao.getRoomByID(roomID);
+        if(!cr.getStatus().equals("available")){
+            errorMsgs.add("Room is occupied, please select other rooms");
+        }
         
         //Checking null entry
         if(custname == null || custname.trim().length() == 0){
@@ -74,28 +77,35 @@ public class bookingServlet extends HttpServlet {
         if(bkdate == null || bkdate.trim().length() == 0){
             errorMsgs.add("Please enter booking date ");
         }
+        if(roomType == null || roomType.trim().length() == 0){
+            errorMsgs.add("Please select type of room");
+        }
+        if(roomID == null || roomID.trim().length() == 0){
+            errorMsgs.add("Please select room number");
+        }
         if ( ! errorMsgs.isEmpty()) {
             request.setAttribute("errorMsgs", errorMsgs);
-            RequestDispatcher view = request.getRequestDispatcher("/JSPmenu.jsp");
+            RequestDispatcher view = request.getRequestDispatcher("/booking.jsp");
             view.forward(request, response);
             return;
         }
-        //insert customer data to database
+        
+        //insert customer data to database if there is no existing data
         CustomerDao custdao = new CustomerDao();
         Customer cust = custdao.addCustomer(
                 (new Customer("0",custname,phoneNo)));
         
-        //Get roomType
-        String roomType = request.getParameter("roomType");
+        //update selected room's status
+        rdao.updateRoomStatus(roomID);
         
-        //E
-        //String bookid = request.getParameter("");
-        //String roomid = request.getParameter("");
-        
-        //Add booking to database
-        booking bk = new booking("B001",
-                emp.getEmployeeID(),"TST101",cust.getCustomerID(),bkdate);
+        //Create a data access object (DAO) booking information
         BookingDao bkdao = new BookingDao();
+        //Generate a booking id
+        String bookID = bkdao.generateBookID();
+        
+        //Create a booking information object
+        booking bk = new booking(bookID,
+                emp.getEmployeeID(),cr.getRoomID(),cust.getCustomerID(),bkdate);
         bkdao.addBooking(bk);
         
         //Redirect to successBooking.jsp
@@ -105,60 +115,7 @@ public class bookingServlet extends HttpServlet {
         request.setAttribute("roomType",roomType);
         RequestDispatcher view = request.getRequestDispatcher("/successBooking.jsp");
         view.forward(request, response);
-        
-        /*//
-        try {
-            String bookingID = generateBookingID();
-            String employeeID = "placeholder";
-            String roomID = "placeholder";
-            String customerID = "palceholder";
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            String name = request.getParameter("custName");
-            String phone = request.getParameter("custPhone");
-            String date = request.getParameter("bookingDate");
-            String room = request.getParameter("roomType");
-            if(null==name||phone==null||date==null||room==null){
-                RequestDispatcher view = request.getRequestDispatcher("/booking.html");
-                view.forward(request, response);
-            }
-            else{
-                pstmt = conn.prepareStatement(
-                        "INSERT INTO BOOKING "
-                        + "(BOOKINGID, EMPLOYEEID, ROOMID, CUSTOMERID, BOOKINGDATE)"
-                        + "VALUES (?,?,?,?,?)");
-                pstmt.setString(1, bookingID);
-                pstmt.setString(2, employeeID);
-                pstmt.setString(3, roomID);
-                pstmt.setString(4, customerID);
-                pstmt.executeUpdate();
-                pstmt.close();
-                RequestDispatcher view = request.getRequestDispatcher("/successBooking.jsp");
-                view.forward(request, response);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }*///
-    }//end of doPost()
-    
-    /*/
-    private String generateBookingID(){
-        try{
-            String driver = "org.apache.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/Customer;create=true;user=app;password=app";
-            Connection conn = DriverManager.getConnection(connectionString);
-            pstmt = conn.prepareStatement("SELECT MAX(BOOKINGID) FROM RECEPTIONIST");
-            ResultSet rs = pstmt.executeQuery();
-            int id = Integer.parseInt(rs.getString(1));
-            id = id+1;
-            String bID = String.valueOf(id);
-            return bID;
-        } catch (SQLException ex){
-            Logger.getLogger(bookingServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }//*/
+    }
     
     @Override
     public String getServletInfo() {

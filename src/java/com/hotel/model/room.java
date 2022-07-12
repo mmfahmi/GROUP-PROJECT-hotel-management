@@ -12,8 +12,18 @@ public class room {
     private String roomID;
     private String roomNum;
     private String roomType;
-    private String roomPrice;
+    private double roomPrice;
+    private String status;
 
+    //Constructor
+    public room(String id,String no, String type, double p, String st){
+        roomID = id;
+        roomNum = no;
+        roomType = type;
+        roomPrice = p;
+        status = st;
+        
+    }//end of constructor
     /**
      * @return the roomID
      */
@@ -59,15 +69,23 @@ public class room {
     /**
      * @return the roomPrice
      */
-    public String getRoomPrice() {
+    public double getRoomPrice() {
         return roomPrice;
     }
 
     /**
      * @param roomPrice the roomPrice to set
      */
-    public void setRoomPrice(String roomPrice) {
+    public void setRoomPrice(double roomPrice) {
         this.roomPrice = roomPrice;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
     
 }

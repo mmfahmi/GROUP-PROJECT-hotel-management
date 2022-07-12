@@ -33,7 +33,7 @@
         <h1>HOTEL MANAGEMENT SYSTEM</h1>
         <div class="topnav">
             <a href="JSPmenu.jsp">Dashboard</a>
-            <a class="active" href="booking.html">New booking</a>
+            <a class="active" href="booking.jsp">New booking</a>
             <a href="checkBooking.jsp">Check booking</a>
             <a href="logout.do">Log out</a>
         </div><br>

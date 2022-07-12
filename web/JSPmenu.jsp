@@ -24,7 +24,7 @@
         <h1>HOTEL MANAGEMENT SYSTEM</h1>
         <div class="topnav">
             <a class="active" href="#home">Dashboard</a>
-            <a href="booking.html">New booking</a>
+            <a href="booking.jsp">New booking</a>
             <a href="checkBooking.jsp">Check booking</a>
             <a href="logout.do">Log out</a>
         </div>
