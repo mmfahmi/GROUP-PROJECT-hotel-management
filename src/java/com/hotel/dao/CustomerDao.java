@@ -95,8 +95,7 @@ public class CustomerDao {
                 else
                     id = 100 + rs.getInt(1);
             }
-            int custID = id + 1;
-            custID = getDistinctID(custID);
+            int custID = getDistinctID(id+1);
             closeDB(); //close connection
             return custID;//Return the generated ID
             
@@ -138,16 +137,16 @@ public class CustomerDao {
     //5) Get list of all customers
     public LinkedList getCustomerList(){
         openDB(); // open connection
-        
+        custList = new LinkedList();
         String sql = "select * from customer";
         Statement stmt;
-        
+        ResultSet rs;
         try {
             
             stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+            rs = stmt.executeQuery(sql);
             while(rs.next()){
-                String id = rs.getString("customerid");
+                String id = Integer.toString(rs.getInt("customerid"));
                 String name = rs.getString("customername");
                 String phone = rs.getString("customerphonenum");
                 
@@ -157,7 +156,8 @@ public class CustomerDao {
             closeDB(); //Close the connection
             return custList;
             
-        } catch (Exception e) { System.out.println(e);}
+        } catch (Exception e) { 
+            System.out.println(e);}
         
         return custList;
     }
@@ -169,24 +169,62 @@ public class CustomerDao {
     
     //7) To counter customer id generation duplicates
     public int getDistinctID(int id){
-        clearCustomerList(); //Clear the data list
-        getCustomerList(); //Get new data list
-        
         boolean wloop = true; //to loop
-        
+        int newid = id;
         while(wloop) {
-            boolean id_found = false;
-            for(Object obj: custList){
-                Customer c = (Customer) obj;
-                int c_id = Integer.parseInt(c.getCustomerID());
-                if(c_id == id){
-                    id = id + 1;
-                    id_found = true;
-                    break; //exit for loop
-                }
-            }
-            if(!id_found){break;} //exit while loop
+            Customer c = getCustomer(Integer.toString(newid));
+            if(c == null){
+                wloop = false;
+            } else {
+                newid = newid + 1;
+            } //exit while loop
         }
-        return id;
+        return newid;
+    }
+    
+    //8) Update customer data
+    public Customer updateCustomer(Customer c){
+        openDB(); //Opens the database
+        String sql = "update customer set customerName=?,customerPhoneNum=? "+
+                        "where customerID=?";
+        String custName = c.getCustomerName();
+        String custPhone = c.getCustomerPhoneNum();
+        int custID = Integer.parseInt(c.getCustomerID());
+        PreparedStatement ps;
+        try {
+            //Create statement
+            ps = con.prepareStatement(sql);
+            ps.setString(1, custName);
+            ps.setString(2, custPhone);
+            ps.setInt(3, custID);
+            ps.executeUpdate();
+            closeDB(); //close connection
+            
+            //Set new customer info
+            c.setCustomerID(Integer.toString(custID));
+            return c;
+            
+        } catch(Exception e){
+            //Logger.getLogger(CustomerDao.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println((e));
+        }
+        return c;
+    }
+
+    //9) Delete customer data
+    public void deleteCustomer(String id){
+        openDB(); //Open the connection
+        int cid = Integer.parseInt(id);
+        String sql = "delete from customer where customerid=?";
+        PreparedStatement ps;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, cid);
+            ps.executeUpdate();
+            closeDB();//close connection
+            
+        } catch (Exception e) {
+            System.out.println((e));
+        }
     }
 }

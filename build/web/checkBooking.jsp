@@ -4,8 +4,6 @@
         request.setAttribute("errMessage", "You have not login");
         request.getRequestDispatcher("/index.jsp").forward( request, response);
     }%>
-<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" import="java.sql.*" %>
 <%@page import="java.sql.*"%>
 <%@page import="com.hotel.dao.*"%>
@@ -59,18 +57,39 @@
             <a href="booking.jsp">New booking</a>
             <a class="active" href="#">Check booking</a>
             <a href="logout.do">Log out</a>
-        </div><br><br>
-       
+        </div>
+        <h3 style="background-color: white">List of Bookings</h3>
+       <% //If delete operation was done, display message
+           if(request.getAttribute("delcust") != null){
+               String p = (String)request.getAttribute("delcust");
+               %><p style="color:red;background-color:white;"><%=p%></p><%
+           }
+           if(request.getAttribute("delbooking") != null){
+               String p = (String)request.getAttribute("delbooking");
+               %><p style="color:red;background-color:white;"><%=p%></p><%
+           }
+       %>
         <table border="1" cellspacing="5" celldpadding="10" width="80%" >
             <tr>
                     <th>Booking ID</th>
                     <th>Employee ID</th>
-                    <th>Room ID</th>
-                    <th>Customer ID</th>
+                    <th class="tooltip">Room ID
+                    <span class="tooltiptext">
+                            View:<br>
+                            <a href="RoomList.jsp">List of Rooms</a>
+                        </span>
+                    </th>
+                    <th class="tooltip">Customer ID
+                        <span class="tooltiptext">
+                            View:<br>
+                            <a href="CustomerList.jsp">List of Customers</a>
+                        </span>
+                    </th>
                     <th>Booking Date</th>
                     <th>Actions</th>
             </tr>
             <% //Display all data
+            if(bklist != null) {
                 for(Object obj: bklist) { 
                     booking bk = (booking) obj;
                     Customer c = custdao.getCustomer(bk.getCustomerID());
@@ -99,10 +118,12 @@
                             </span>
                         </td>
                         <td><%= bk.getBookingDate() %></td>
-                        <td><a>Edit</a>
-                            <a>Delete</a>
+                        <td><a href="editbooking.jsp?bookid=<%=bk.getBookingID()%>">
+                                Edit</a>
+                            <a href="deletebooking.jsp?bookid=<%=
+                                bk.getBookingID()%>">Cancel</a>
                             </td>
-                </tr><% } %>
+                </tr><% } }%>
         </table>
     </body>
 </html>

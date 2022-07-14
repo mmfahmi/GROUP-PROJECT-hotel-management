@@ -41,7 +41,7 @@ public class BookingDao {
             System.out.println((e));
         }
     }
-    //2) Get generate booking id
+    //2) Generate booking id
     public String generateBookID() {
         openDB();
         String sql = "select count(bookingid) from booking";
@@ -56,8 +56,8 @@ public class BookingDao {
                 else
                     id = 100 + rs.getInt(1);//Copy the value of the result
             }
-            int bkID = id + 1; //Adding value '1'
-            String bookID = "BK"+Integer.toString(bkID);
+            //Adding value '1'
+            String bookID = getDistinctID(id+1);
             closeDB(); //close connection
             return bookID;//Return the generated ID
         } catch (Exception e) {
@@ -117,5 +117,60 @@ public class BookingDao {
     //5) Clear booking data list 
     public void releaseBookList(){
         bklist.clear();
+    }
+    
+    //6) To counter booking id generation duplicates
+    public String getDistinctID(int id){
+        boolean wloop = true; //to loop
+        String bookID = "BK"+Integer.toString(id);
+        int inc_id = id;
+        while(wloop) {
+            booking bk = getBookingID(bookID);
+            if(bk == null){
+                wloop=false;
+            } else {
+                inc_id = inc_id + 1;
+                bookID = "BK"+Integer.toString(inc_id);
+            } //exit while loop
+        }
+        return bookID;
+    }
+    
+    //7) Update booking details
+    public void updateBooking(booking newBk){
+        openDB(); //Open the connection
+        String bookingid = newBk.getBookingID();
+        String employeeid = newBk.getEmployeeID();
+        String roomid = newBk.getRoomID();
+        String customerid = newBk.getCustomerID();
+        String date = newBk.getBookingDate();
+        String sql = "update booking set "+
+        "employeeid='"+employeeid+"',roomid='"+roomid+
+        "',customerid='"+customerid+"',bookingdate='"+date+
+        "' where bookingid='"+bookingid+"'";
+        PreparedStatement ps;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.executeUpdate();
+            closeDB();//close connection
+            
+        } catch (Exception e) {
+            System.out.println((e));
+        }
+    }
+    
+    //8) Delete Booking
+    public void deleteBooking(String id){
+        openDB(); //Open the connection
+        String sql = "delete from booking where bookingid='"+id+"'";
+        PreparedStatement ps;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.executeUpdate();
+            closeDB();//close connection
+            
+        } catch (Exception e) {
+            System.out.println((e));
+        }
     }
 }

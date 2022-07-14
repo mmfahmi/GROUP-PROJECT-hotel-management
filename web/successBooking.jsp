@@ -9,7 +9,7 @@
     String name=request.getParameter("custName");
     String phone=request.getParameter("custPhone");
     String date=request.getParameter("bookingDate");
-    String type=request.getParameter("roomType");
+    String type=(String)request.getAttribute("roomType");
 %>
 <html>
     <head>
@@ -40,7 +40,17 @@
         
         <div class="complete">
             <h1>Booking completed</h1>
-            New booking has been created<br><br>
+        <% //If receiving the editted parameter
+            String editbk = (String) request.getAttribute("editbooking");
+            if(editbk!=null){
+                if(editbk.equals("success")){
+            %>The booking details has been updated<br><br><%        
+                } else {
+            %>The booking details does not successfully updated<br><br><%        
+                }
+            } else {
+            %>New booking has been created<br><br><%}%>
+            
                 <table border="0" cellspacing="0" cellpadding="5">
                     <tr>
                         <th>Name</th>

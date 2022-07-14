@@ -10,7 +10,7 @@
     }%>
 <html>
     <head>
-        <title>Booking Room</title>
+        <title>Edit Booking Room</title>
         <link rel="stylesheet" href="menuCascading.css">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +24,7 @@
                 "There is no room avaliable at the moment<br><br>";
             } else {
             document.getElementById('displayList').innerHTML = 
-                    "Room Number&nbsp&nbsp<select name=roomID> "+st1+
+                    "New Room Number&nbsp&nbsp<select name='roomID'> "+st1+
                     "</select><br><br>";}
         }
         else if(rtype === 'double'){
@@ -34,7 +34,7 @@
                 "There is no room avaliable at the moment<br><br>";
             } else {
             document.getElementById('displayList').innerHTML =
-                    "Room Number&nbsp&nbsp<select name=roomID> "+st1+
+                    "New Room Number&nbsp&nbsp<select name='roomID'> "+st1+
                     "</select><br><br>";}
         }
         else if(rtype === 'suite'){
@@ -44,7 +44,7 @@
                 "There is no room avaliable at the moment<br><br>";
             } else {
             document.getElementById('displayList').innerHTML = 
-                    "Room Number&nbsp&nbsp<select name=roomID> "+st1+
+                    "New Room Number&nbsp&nbsp<select name='roomID'> "+st1+
                     "</select><br><br>";}
         }
         else {
@@ -58,9 +58,26 @@
         //Get error message
         List errorMsgs = (List) request.getAttribute("errorMsgs");
         
+        //Get the booking id from url
+        String bookid = request.getParameter("bookid");
+        //Get booking data
+        BookingDao bkdao = new BookingDao();
+        booking bk = bkdao.getBookingID(bookid);
+        bkdao.releaseBookList(); //Clear list of data
+        
+        //Get customer id and room id from booking object
+        String custid = bk.getCustomerID();
+        String roomid = bk.getRoomID();
+        
+        //Get data from table Customer
+        CustomerDao cdao = new CustomerDao();
+        Customer cust = cdao.getCustomer(custid);
+        
         //Get data from the table Room
         roomDao rdao = new roomDao();
         List rl = rdao.getRoomList();
+        room custroom = rdao.getRoomByID(roomid);
+        
         String rsingle="",rdouble="",rsuite="";
             for(Object obj: rl){
                 room cr = (room) obj;
@@ -99,18 +116,26 @@
         <input id="rsingle" value="<%=rsingle%>" hidden disabled/>
         <input id="rdouble" value="<%=rdouble%>" hidden disabled/>
         <input id="rsuite" value="<%=rsuite%>" hidden disabled/>
-        
-            <form name="form" action="booking.do" method="POST">
+        <h3>Edit Booking Info: <%=bookid%></h3>
+            <form name="form" action="editbooking.do" method="POST">
                            
-                <br><br>Name&nbsp&nbsp <input type="text" name="custName" required><br><br>
+                <br>Name&nbsp&nbsp <input type="text" name="custName" 
+                       value="<%=cust.getCustomerName()%>" required><br><br>
 
-                Phone&nbsp&nbsp<input type="text" name="custPhone" maxlength="11" required><br><br>
+                Phone&nbsp&nbsp<input type="text" name="custPhone" 
+                       value="<%=cust.getCustomerPhoneNum()%>" maxlength="11" required><br><br>
                     
-                Date&nbsp&nbsp<input type="date" name="bookingDate" required><br><br>
-
-                    Room Reservation type&nbsp&nbsp
-                    <select id="roomType" name="roomType" onchange="select_roomType()"
-                            required>
+                Date&nbsp&nbsp<input type="date" name="bookingDate" 
+                       value="<%=bk.getBookingDate()%>"><br><br>
+                
+                Selected Room Number : <%=custroom.getRoomNum() %> -
+                    (<%=custroom.getRoomType()%>)<br><br>
+                <%-- Hidden input for id references when submitted --%>
+                    <input type="hidden" name="prevRoomid" value="<%=custroom.getRoomID()%>">
+                    <input type="hidden" name="bookingid" value="<%=bk.getBookingID() %>">
+                        
+                    New Room Reservation type&nbsp&nbsp
+                    <select id="roomType" name="roomType" onchange="select_roomType()">
                             <option value="">Select Room Type</option>
                             <option value="single">RM 100 : Single</option>
                             <option value="double">RM 150 : Double</option>

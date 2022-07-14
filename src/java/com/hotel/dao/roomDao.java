@@ -95,9 +95,6 @@ public class roomDao {
     
     //5) Update Room Status
     public void updateRoomStatus(String id){
-        //Start the database
-        openDB();
-        
         //Prepare update data
         String status = "";
         
@@ -108,17 +105,14 @@ public class roomDao {
         } else {
             status = "available";
         }
-        
+        //Start the database
+        openDB();
         PreparedStatement ps;
         try {
             ps = con.prepareStatement("update room set status='"+
                     status+"' where roomid='"+id+"'");
             ps.executeUpdate();
-            
-            //Clear the current list of data of the rooms 
-            roomlist.clear();
-            //and get new list which is updated
-            getRoomList();
+            closeDB();
             
         } catch (Exception e) {
             System.out.println(e);

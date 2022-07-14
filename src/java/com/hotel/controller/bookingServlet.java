@@ -18,10 +18,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author FAHMI
- */
 public class bookingServlet extends HttpServlet {
 
         private PreparedStatement pstmt;
@@ -92,8 +88,10 @@ public class bookingServlet extends HttpServlet {
         
         //insert customer data to database if there is no existing data
         CustomerDao custdao = new CustomerDao();
-        Customer cust = custdao.addCustomer(
-                (new Customer("0",custname,phoneNo)));
+        Customer cust = custdao.getCustomer(custname, phoneNo);
+        if(cust == null){
+            cust = custdao.addCustomer((new Customer("0",custname,phoneNo)));
+        }
         
         //update selected room's status
         rdao.updateRoomStatus(roomID);
