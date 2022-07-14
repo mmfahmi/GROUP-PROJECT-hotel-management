@@ -107,7 +107,8 @@
                         <td class="tooltip"><%= bk.getRoomID()  %>
                             <span class="tooltiptext">
                                 Room Type: <%= r.getRoomType() %> <br>
-                                Room Number: <%= r.getRoomNum() %>
+                                Room Number: <%= r.getRoomNum() %> <br>
+                                Price: RM<%=r.getRoomPrice() %>
                             </span>
                         </td>
                         
