@@ -72,9 +72,8 @@
                 <%=emp.getEmployeeID() %>)<br><br>
                 
                 <%-- Check Box To Delete Customer Data--%>
-                <input style="width:18px;height:18px;" type="checkbox" name="deletecust" 
+                <input type="hidden" name="deletecust" 
                        value="<%=cust.getCustomerID() %>">
-                <label for="deletecust"> Delete customer details as well
                 </label><br><br>
                 
                 <input style="width:120px;height:25px;"

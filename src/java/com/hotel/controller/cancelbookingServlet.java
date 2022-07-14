@@ -20,7 +20,7 @@ public class cancelbookingServlet extends HttpServlet {
         //Get the parameters
         String bookid = request.getParameter("bookingid");
         String roomid = request.getParameter("roomid");
-        String custid_del[] = request.getParameterValues("deletecust");
+        String custid_del = request.getParameter("deletecust");
         
         //Delete the booking data
         BookingDao bkdao = new BookingDao();
@@ -30,14 +30,9 @@ public class cancelbookingServlet extends HttpServlet {
         roomDao rdao = new roomDao();
         rdao.updateRoomStatus(roomid);
         
-        //If the user want to delete customer's data
-        if(custid_del[0] != null){
-            CustomerDao cdao = new CustomerDao();
-            cdao.deleteCustomer(custid_del[0]);
-            //Set Message delete customer
-            request.setAttribute("delcust","Customer details with id "+
-                    custid_del[0]+" has been removed");
-        }
+        //Delete customer's data
+        CustomerDao cdao = new CustomerDao();
+        cdao.deleteCustomer(custid_del);
         
         //Redirect to checkBooking.jsp
         request.setAttribute("delbooking", "Booking has been removed");

@@ -60,12 +60,8 @@
         </div>
         <h3 style="background-color: white">List of Bookings</h3>
        <% //If delete operation was done, display message
-           if(request.getAttribute("delcust") != null){
-               String p = (String)request.getAttribute("delcust");
-               %><p style="color:red;background-color:white;"><%=p%></p><%
-           }
            if(request.getAttribute("delbooking") != null){
-               String p = (String)request.getAttribute("delbooking");
+               Object p = request.getAttribute("delbooking");
                %><p style="color:red;background-color:white;"><%=p%></p><%
            }
        %>
