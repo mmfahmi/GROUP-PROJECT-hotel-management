@@ -29,7 +29,7 @@
             <a href="checkBooking.jsp">Check booking</a>
             <a href="logout.do">Log out</a>
         </div>
-        <h3 style="background-color: white">List of Customers</h3>
+        <h3 style="background-color: white">List of Rooms</h3>
         <table border="1" cellspacing="5" celldpadding="10" width="80%" >
             <tr>
                     <th>Room ID</th>
